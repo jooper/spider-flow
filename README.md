@@ -57,3 +57,36 @@
 
 ## 免责声明
 请勿将`spider-flow`应用到任何可能会违反法律规定和道德约束的工作中，请友善使用`spider-flow`，遵守蜘蛛协议，不要将`spider-flow`用于任何非法用途。如您选择使用`spider-flow`即代表您遵守此协议，作者不承担任何由于您违反此协议带来任何的法律风险和损失，一切后果由您承担。
+
+
+## 添加随机cron随机功能
+思路： 在eidtCron.html页面添加随机功能页面； 启动后后台调整相应的功能
+```java
+// 在每次自行后设置下次调度时间的时候，这里改写下一次执行的日期规则nextExecuteTime；
+// 或者调用下面两个函数重新下次调用日期
+public void run(SpiderFlow spiderFlow, Date nextExecuteTime) {
+    Task task = new Task();
+    task.setFlowId(spiderFlow.getId());
+    task.setBeginTime(new Date());
+    taskService.save(task);
+    run(spiderFlow,task,nextExecuteTime);
+}
+
+@RequestMapping("/cron")
+public void cron(String id,String cron){
+    spiderFlowService.resetCornExpression(id, cron);
+}
+
+@Update("update sp_flow set next_execute_time = null where id = #{id}")
+int resetNextExecuteTime(@Param("id") String id);
+
+```
+
+## 在centos上部署selenium的时候需要做一下配置（selenium可以获取动态加载的网页内容）
+https://blog.csdn.net/jj89929665/article/details/129621551
+>  安装wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+>  yum localinstall google-chrome-stable_current_x86_64.rpm
+>  google-chrome --version
+>  下载相应版本的chrome webdriver   https://registry.npmmirror.com/binary.html?path=chromedriver/
+>  第一步安装的是115的版本，使用chrome webdriver 114的版本也是可以的
+chown -R admin:admin  spider

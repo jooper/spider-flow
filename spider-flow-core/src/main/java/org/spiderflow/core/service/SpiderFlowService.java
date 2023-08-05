@@ -102,6 +102,11 @@ public class SpiderFlowService extends ServiceImpl<SpiderFlowMapper, SpiderFlow>
 
 	@Override
 	public boolean save(SpiderFlow spiderFlow){
+
+		if(spiderFlow.getXml()==null)
+		{
+			return  false;
+		}
 		//解析corn,获取并设置任务的开始时间
 		if(StringUtils.isNotEmpty(spiderFlow.getCron())){
 			CronTrigger trigger = TriggerBuilder.newTrigger()

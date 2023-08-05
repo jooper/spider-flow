@@ -35,11 +35,19 @@ public class ExtractUtils {
 		return getMatchers(content,regx,isGroup ? 1: 0);
 	}
 	
-	public static List<String> getMatchers(String content,String regx,int groupIndex){
+	public static List<String> getMatchers(String content,String regx,int groupIndex) {
 		Matcher matcher = compile(regx).matcher(content);
 		List<String> results = new ArrayList<>();
-		while(matcher.find()){
-			results.add(matcher.group(groupIndex));
+		try {
+//			 jwp 20230804  调整在regxs的时候只有一项数据的情况
+			while (matcher.find()) {
+				results.add(matcher.group(groupIndex));
+			}
+		} catch (Exception ex) {
+			matcher.find();
+			for (int i = 0; i < matcher.groupCount() + 1; i++) {
+				results.add(matcher.group(i));
+			}
 		}
 		return results;
 	}

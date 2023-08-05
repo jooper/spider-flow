@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.jsoup.nodes.Element;
 import org.spiderflow.annotation.Comment;
 import org.spiderflow.annotation.Example;
 import org.spiderflow.executor.FunctionExecutor;
@@ -57,15 +58,17 @@ public class ListFunctionExecutor implements FunctionExecutor{
 		return list!= null ? list.subList(fromIndex, toIndex) : new ArrayList<>();
 	}
 
+	//${list.	filterStr(proList,'^.*(2023-07-17|2023-07-16).*$')}
 	@Comment("过滤字符串list元素")
 	@Example("${listVar.filterStr(pattern)}")
-	public static List<String> filterStr(List<String> list, String pattern) {
+	public static List<Element> filterStr(List<Element> list, String pattern) {
 		if (list == null || list.isEmpty()) {
 			return null;
 		}
-		List<String> result = new ArrayList<>(list.size());
-		for (String item : list) {
-			if (Pattern.matches(pattern, item)) {
+		List<Element> result = new ArrayList<>(list.size());
+
+		for (Element item : list) {
+			if (Pattern.matches(pattern, item.html())||Pattern.matches(pattern, item.text())) {
 				result.add(item);
 			}
 		}

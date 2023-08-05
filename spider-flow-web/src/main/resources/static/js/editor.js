@@ -4,6 +4,7 @@ var flows;
 var codeMirrorInstances = {};
 var socket;
 var version = 'lastest';
+var testWindowIndex;
 function renderCodeMirror(){
 	codeMirrorInstances = {};
 	$('[codemirror]').each(function(){
@@ -679,6 +680,7 @@ function bindToolbarClickAction(editor){
 //		editor.setXML($(".xml-container textarea").val());
 //		editor.onSelectedCell();
 	}).on('click','.btn-stop:not(.disabled)',function () {
+		// closeWindow(testWindowIndex);
 		socket.send(JSON.stringify({
 			eventType : 'stop'
 		}));
@@ -762,6 +764,15 @@ function bindToolbarClickAction(editor){
 	})
 	$('.btn-dock-bottom').click();
 }
+
+function closeWindow(index)
+{
+	if(index)
+	{
+		layer.close(index);
+		index=null;
+	}
+}
 function runSpider(debug){
 	validXML(function(){
 		$(".btn-debug,.btn-test,.btn-resume").addClass('disabled');
@@ -770,7 +781,9 @@ function runSpider(debug){
 		var tableMap = {};
 		var first = true;
 		var filterText = '';
-		var testWindowIndex = layui.layer.open({
+		closeWindow(testWindowIndex);
+		// var testWindowIndex = layui.layer.open({
+		testWindowIndex = layui.layer.open({
 			id : 'test-window',
 			type : 1,
 			skin : 'layer-test',
@@ -1143,21 +1156,42 @@ function createWebSocket(options){
 }
 
 var flowId;
-function Save(){
-	validXML(function(){
+function Save() {
+	var postArgs = {
+		id: getQueryString('id') || flowId,
+		xml: editor.getXML(),
+		name: editor.graph.getModel().getRoot().data.get('spiderName') || '未定义名称',
+	};
+	validXML(function () {
 		$.ajax({
-			url : 'spider/save',
-			type : 'post',
-			data : {
-				id : getQueryString('id') || flowId,
-				xml : editor.getXML(),
-				name : editor.graph.getModel().getRoot().data.get('spiderName') || '未定义名称',
+			url: 'spider/save',
+			type: 'post',
+			// data : postArgs,
+			contentType: "application/json", //必须这样写
+			// dataType:"json",这里如果是json，java的返回参数必须是json格式的
+			data:JSON.stringify(postArgs),//schoolList是你要提交是json字符串
+			success: function (id) {
+				if (id) {
+					flowId = id;
+					layui.layer.msg('保存成功', {
+						time: 800
+					}, function () {
+						// location.href = "spiderList.html";
+					})
+				}
+				else
+				{
+					layui.layer.msg('保存失败', {
+						time: 800
+					}, function () {
+						// location.href = "spiderList.html";
+					})
+				}
 			},
-			success : function(id) {
-				flowId = id;
-				layui.layer.msg('保存成功', {
-					time : 800
-				}, function() {
+			error:function(){
+				layui.layer.msg('执行异常', {
+					time: 800
+				}, function () {
 					// location.href = "spiderList.html";
 				})
 			}

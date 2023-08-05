@@ -38,8 +38,7 @@ public class ExtractFunctionExecutor implements FunctionExecutor{
 	}
 	
 	@Comment("根据正则表达式提取内容")
-	@Example("${extract.regx(resp.html,'<a href=\"(.*?)\">(.*?)</a>',[1,2])}")
-	public static List<String> regx(String content,String pattern,List<Integer> groups){
+	@Example("${extract.regx(resp.html,'<a href=\"(.*?)\">(.*?)</a>',[1,2])}")	public static List<String> regx(String content,String pattern,List<Integer> groups){
 		return ExtractUtils.getFirstMatcher(content, pattern, groups);
 	}
 	

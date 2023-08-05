@@ -247,6 +247,7 @@ public class RequestExecutor implements ShapeExecutor,Grammerable, SpiderListene
 						String[] proxyArr = value.toString().split(":");
 						if(proxyArr.length == 2){
 							request.proxy(proxyArr[0], Integer.parseInt(proxyArr[1]));
+//							request.header("Connection","Close");
 							logger.info("设置代理：{}",proxy);
 						}
 					}

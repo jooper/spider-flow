@@ -262,6 +262,13 @@ li {
 								type="checkbox" value="21">21 <input type="checkbox"
 								value="22">22 <input type="checkbox" value="23">23
 						</div>
+
+						<!--扩展-->
+						<div class="line">
+							<input type="radio" name="hour" id="hour_rand"> 随机
+						</div>
+
+
 					</div>
 					<div title="日">
 						<div class="line">
@@ -422,8 +429,26 @@ li {
 								data-options="min:2014,max:3000" id="yearEnd_0" value="2014">
 						</div>
 					</div>
+
+					<div title="随机">
+						<div class="line">
+							<input type="radio" checked="checked" name="year" onclick="unAppoint(this)"> 随机秒
+						</div>
+						<div class="line">
+							<input type="radio" name="year" onclick="everyTime(this)">
+							每年
+						</div>
+						<div class="line">
+							<input type="radio" name="year" onclick="cycle(this)">周期
+							从 <input class="numberspinner" style="width: 90px;"
+									 data-options="min:2013,max:3000" id="yearStart_0" value="2013">
+							- <input class="numberspinner" style="width: 90px;"
+									 data-options="min:2014,max:3000" id="yearEnd_0" value="2014">
+						</div>
+					</div>
 				</div>
 			</div>
+
 			<div data-options="region:'south',border:false" style="height: 270px">
 				<fieldset style="border-radius: 3px; height: 250px;">
 					<legend>表达式</legend>

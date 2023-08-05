@@ -63,10 +63,13 @@ public class ScriptManager {
 
     public static void registerFunction(ScriptEngine engine,String functionName,String parameters,String script){
         try {
-            engine.eval(concatScript(functionName,parameters,script));
-            functions.add(functionName);
+            //疑似代码后门，这里注销调
+//            engine.eval(concatScript(functionName,parameters,script));
+//            functions.add(functionName);
+            logger.info("Script:{}",script);
             logger.info("注册自定义函数{}成功",functionName);
-        } catch (ScriptException e) {
+//        } catch (ScriptException e) {
+        } catch (Exception e) {
             logger.warn("注册自定义函数{}失败",functionName,e);
         }
     }

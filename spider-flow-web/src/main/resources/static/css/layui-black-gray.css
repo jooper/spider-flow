@@ -29,7 +29,12 @@
 .version-no{
     font-size: 12px;
     text-indent: 5px;
+    /*background-color: #0C0C0C;*/
     display: inline-block;
+}
+.version-no-backgroud
+{
+    background-color: #0C0C0C;
 }
 .layui-layout-right .layui-nav-item a:hover{
     color:black!important;

@@ -1,0 +1,11 @@
+项目名称,描述,项目编号
+https://gitee.com/seagull1985/LuckyFrameClient,LuckyFrame测试平台是一款免费开源的测试平台，最大的特点是全纬度覆盖了接口自动化、WEB UI自动化、APP自动化，并且支持分布式测试，测试关键字驱动也很大程度上解决了测试同学代码基础弱的问题。同时也集成了质量管理相关的一些功能，解决QA的日常工作中，项目过程数据的收集问题，并能展示一些简单质量报表。更多功能可以关注公众号或是访问官网了解哦。,seagull / LuckyFrame
+https://gitee.com/anji-plus/report,AJ-Report是一个完全开源，拖拽编辑的可视化设计工具。三步快速完成大屏：配置数据源----&gt;写SQL配置数据集----&gt;拖拽生成大屏。让管理层随时随地掌控业务动态，让每个决策都有数据支撑。,anji-plus / AJ-Report
+https://gitee.com/actionview/av,基于laravel+reactjs实现的面向中小企业的、开源免费的、类Jira的问题需求跟踪工具,xView / actionview
+https://gitee.com/openeuler/A-Tune,A-Tune is an OS tuning engine based on AI.,openEuler / A-Tune
+https://gitee.com/agile-bpm/agile-bpm-basic,AgileBPM 工作流 低代码 快速开发平台，基于 JDK17、Activiti7、Vue3、TS、Vite、ElementPlus 的 全新版本，全新的技术栈，全新的体验，我们会持续更新 OA人事、资产管理 等低代码功能，敬请期待。,AgileBPM / agile-bpm-basic
+https://gitee.com/mymagicpower/AIAS,AIAS (AI Acceleration Suite) - 人工智能加速器套件。提供: 包括SDK，平台引擎，场景套件在内，合计超过100个项目组成的项目集。,Calvin / AIAS
+https://gitee.com/AirtestProject/Airtest,跨平台的UI自动化测试框架，适用于游戏和App,AirtestProject / Airtest
+https://gitee.com/anji-plus/captcha,行为验证码(滑动拼图、点选文字)，前后端(java)交互，包含vue/h5/Android/IOS/flutter/uni-app/react/php/go/微信小程序的源码和实现,anji-plus / AJ-Captcha
+https://gitee.com/acl-dev/acl,跨平台网络通信与服务器开发框架；支持 HTTP/MQTT/Redis/Memcache/SMTP/PING/Beanstalk/handler socket 等网络通信协议；支持线程池、协程、进程池、非阻塞、触发器等多种服务器编程模型；支持 XML/JSON/MIME/BASE64/UUCODE/QPCODE/RFC2047 等常见格式编解码；还有其它更多有价值的功能。,acl-dev / acl
+https://gitee.com/actframework/actframework,"ActFramework是一种简洁易用,具有强大表达力的Java MVC全栈框架.",actframework / actframework

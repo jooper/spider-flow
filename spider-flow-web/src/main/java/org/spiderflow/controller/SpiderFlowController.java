@@ -25,10 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -105,10 +102,14 @@ public class SpiderFlowController {
 		return spiderFlowService.selectSpiderPage(new Page<>(page, size), name);
 	}
 
-	@RequestMapping("/save")
-	public String save(SpiderFlow spiderFlow){
-		spiderFlowService.save(spiderFlow);
-		return spiderFlow.getId();
+// 修复form传参的时候，部署到centos后，这里获取不到参数的问题，ajax也要做相应的调整
+	@RequestMapping(value = "/save")
+	public String save(@RequestBody SpiderFlow spiderFlow) {
+		if (spiderFlowService.save(spiderFlow)) {
+			return spiderFlow.getId();
+		} else {
+			return "";
+		}
 	}
 
 	@RequestMapping("/history")
