@@ -36,6 +36,9 @@ public class SpiderFlow {
 
     private Date nextExecuteTime;
 
+    @TableField(exist = false)
+    private String msg;
+
     /**
      * 定时执行的执行次数
      */
@@ -131,5 +134,14 @@ public class SpiderFlow {
 
     public void setRunning(Integer running) {
         this.running = running;
+    }
+
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 }

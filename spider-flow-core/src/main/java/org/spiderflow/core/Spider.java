@@ -12,6 +12,7 @@ import org.spiderflow.context.SpiderContextHolder;
 import org.spiderflow.core.executor.shape.LoopExecutor;
 import org.spiderflow.core.model.SpiderFlow;
 import org.spiderflow.core.service.FlowNoticeService;
+import org.spiderflow.core.service.SpiderFlowService;
 import org.spiderflow.core.utils.ExecutorsUtils;
 import org.spiderflow.core.utils.ExpressionUtils;
 import org.spiderflow.core.utils.SpiderFlowUtils;
@@ -56,6 +57,9 @@ public class Spider {
 	@Autowired
 	private FlowNoticeService flowNoticeService;
 
+	@Autowired
+	private SpiderFlowService spiderFlowService;
+
 	public static SpiderFlowThreadPoolExecutor executorInstance;
 
 	private static final String ATOMIC_DEAD_CYCLE = "__atomic_dead_cycle";
@@ -74,9 +78,12 @@ public class Spider {
 		SpiderNode root = SpiderFlowUtils.loadXMLFromString(spiderFlow.getXml());
 		// 流程开始通知
 		flowNoticeService.sendFlowNotice(spiderFlow, FlowNoticeType.startNotice);
-		executeRoot(root, context, variables);
+
+		executeRoot(spiderFlow,root, context, variables);
+
 		// 流程结束通知
 		flowNoticeService.sendFlowNotice(spiderFlow, FlowNoticeType.endNotice);
+
 		return context.getOutputs();
 	}
 
@@ -84,7 +91,7 @@ public class Spider {
 		return run(spiderFlow, context, new HashMap<>());
 	}
 
-	public void runWithTest(SpiderNode root, SpiderContext context) {
+	public void runWithTest(String flowId,SpiderNode root, SpiderContext context) {
 		//将上下文存到ThreadLocal里，以便后续使用
 		SpiderContextHolder.set(context);
 		//死循环检测的计数器（死循环检测只在测试时有效）
@@ -92,7 +99,8 @@ public class Spider {
 		//存入到上下文中，以供后续检测
 		context.put(ATOMIC_DEAD_CYCLE, executeCount);
 		//执行根节点
-		executeRoot(root, context, new HashMap<>());
+		SpiderFlow spiderFlow = spiderFlowService.getById(flowId);
+		executeRoot(spiderFlow,root, context, new HashMap<>());
 		//当爬虫任务执行完毕时,判断是否超过预期
 		if (executeCount.get() > deadCycle) {
 			logger.error("检测到可能出现死循环,测试终止");
@@ -106,7 +114,7 @@ public class Spider {
 	/**
 	 * 执行根节点
 	 */
-	private void executeRoot(SpiderNode root, SpiderContext context, Map<String, Object> variables) {
+	private void executeRoot(SpiderFlow spiderFlow,SpiderNode root, SpiderContext context, Map<String, Object> variables) {
 		//获取当前流程执行线程数
 		int nThreads = NumberUtils.toInt(root.getStringJsonValue(ShapeExecutor.THREAD_COUNT), defaultThreads);
 		String strategy = root.getStringJsonValue("submit-strategy");
@@ -134,7 +142,7 @@ public class Spider {
 		Future<?> f = pool.submitAsync(TtlRunnable.get(() -> {
 			try {
 				//执行具体节点
-				Spider.this.executeNode(null, root, context, variables);
+				Spider.this.executeNode(spiderFlow,null, root, context, variables);
 				Queue<Future<?>> queue = context.getFutureQueue();
 				//循环从队列中获取Future,直到队列为空结束,当任务完成时，则执行下一级
 				while (!queue.isEmpty()) {
@@ -156,7 +164,7 @@ public class Spider {
 								if (task.executor.allowExecuteNext(task.node, context, task.variables)) {	//判断是否允许执行下一级
 									logger.debug("执行节点[{}:{}]完毕", task.node.getNodeName(), task.node.getNodeId());
 									//执行下一级
-									Spider.this.executeNextNodes(task.node, context, task.variables);
+									Spider.this.executeNextNodes(spiderFlow,task.node, context, task.variables);
 								} else {
 									logger.debug("执行节点[{}:{}]完毕，忽略执行下一节点", task.node.getNodeName(), task.node.getNodeId());
 								}
@@ -166,6 +174,9 @@ public class Spider {
 						Thread.sleep(1);
 					} catch (InterruptedException ignored) {
 					} catch (Throwable t){
+						// 流程开始通知
+						spiderFlow.setMsg(t.toString());
+						flowNoticeService.sendFlowNotice(spiderFlow, FlowNoticeType.exceptionNotice);
 						logger.error("程序发生异常",t);
 					}
 				}
@@ -186,11 +197,11 @@ public class Spider {
 	/**
 	 * 执行下一级节点
 	 */
-	private void executeNextNodes(SpiderNode node, SpiderContext context, Map<String, Object> variables) {
+	private void executeNextNodes(SpiderFlow spiderFlow,SpiderNode node, SpiderContext context, Map<String, Object> variables) {
 		List<SpiderNode> nextNodes = node.getNextNodes();
 		if (nextNodes != null) {
 			for (SpiderNode nextNode : nextNodes) {
-				executeNode(node, nextNode, context, variables);
+				executeNode(spiderFlow,node, nextNode, context, variables);
 			}
 		}
 	}
@@ -198,10 +209,10 @@ public class Spider {
 	/**
 	 * 执行节点
 	 */
-	public void executeNode(SpiderNode fromNode, SpiderNode node, SpiderContext context, Map<String, Object> variables) {
+	public void executeNode(SpiderFlow spiderFlow,SpiderNode fromNode, SpiderNode node, SpiderContext context, Map<String, Object> variables) {
 		String shape = node.getStringJsonValue("shape");
 		if (StringUtils.isBlank(shape)) {
-			executeNextNodes(node, context, variables);
+			executeNextNodes(spiderFlow,node, context, variables);
 			return;
 		}
 		//判断箭头上的条件，如果不成立则不执行
@@ -247,6 +258,9 @@ public class Spider {
 				}
 				logger.info("获取循环次数{}={}", loopCountStr, loopCount);
 			} catch (Throwable t) {
+				// 流程开始通知
+				spiderFlow.setMsg(t.toString());
+				flowNoticeService.sendFlowNotice(spiderFlow, FlowNoticeType.exceptionNotice);
 				loopCount = 0;
 				logger.error("获取循环次数失败,异常信息：{}", t);
 			}

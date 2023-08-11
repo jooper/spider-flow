@@ -39,7 +39,7 @@ public class ProcessExecutor implements ShapeExecutor{
 		if(spiderFlow != null){
 			logger.info("执行子流程:{}", spiderFlow.getName());
 			SpiderNode root = SpiderFlowUtils.loadXMLFromString(spiderFlow.getXml());
-			spider.executeNode(null,root,context,variables);
+			spider.executeNode(spiderFlow,null,root,context,variables);
 		}else{
 			logger.info("执行子流程:{}失败，找不到该子流程", flowId);
 		}

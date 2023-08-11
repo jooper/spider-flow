@@ -5,6 +5,7 @@ var codeMirrorInstances = {};
 var socket;
 var version = 'lastest';
 var testWindowIndex;
+var flowId;
 function renderCodeMirror(){
 	codeMirrorInstances = {};
 	$('[codemirror]').each(function(){
@@ -145,6 +146,7 @@ function validXML(callback){
 	}
 }
 $(function(){
+	flowId=getQueryString('id');
 	$.ajax({
 		url : 'spider/other',
 		type : 'post',
@@ -901,6 +903,7 @@ function runSpider(debug){
 				socket = createWebSocket({
 					onopen : function(){
 						socket.send(JSON.stringify({
+							flowId:flowId,
 							eventType : debug ? 'debug' : 'test',
 							message : editor.getXML()
 						}));
@@ -1155,7 +1158,7 @@ function createWebSocket(options){
 	return socket;
 }
 
-var flowId;
+// var flowId;
 function Save() {
 	var postArgs = {
 		id: getQueryString('id') || flowId,

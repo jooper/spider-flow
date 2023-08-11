@@ -68,8 +68,12 @@ public class ListFunctionExecutor implements FunctionExecutor{
 		List<Element> result = new ArrayList<>(list.size());
 
 		for (Element item : list) {
-			if (Pattern.matches(pattern, item.html())||Pattern.matches(pattern, item.text())) {
+			if (Pattern.matches(pattern, item.html())
+					|| Pattern.matches(pattern, item.text())
+					|| Pattern.matches(pattern, item.toString().replace("\n", ""))
+			) {
 				result.add(item);
+
 			}
 		}
 		return result;

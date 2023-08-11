@@ -2,6 +2,7 @@ package org.spiderflow.core.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,24 +65,28 @@ public class FlowNoticeService extends ServiceImpl<FlowNoticeMapper, FlowNotice>
 		if (notice != null && !StringUtils.isEmpty(notice.getRecipients())
 				&& !StringUtils.isEmpty(notice.getNoticeWay())) {
 			String content = null;
-			String sendSubject = this.subject;
+			String sendSubject =ConvertToUtf8(this.subject)+"-"+spiderFlow.getName();
 			switch (type) {
 			case startNotice:
 				if (notice.judgeStartNotice()) {
-					content = startContext;
+					content = ConvertToUtf8(startContext)+":"+spiderFlow.getMsg();
 					sendSubject += " - 流程开始执行";
+					sendSubject=ConvertToUtf8(sendSubject);
 				}
 				break;
 			case endNotice:
 				if (notice.judgeEndNotice()) {
-					content = endContext;
+					content = ConvertToUtf8(startContext)+":"+spiderFlow.getMsg();
 					sendSubject += " - 流程执行完毕";
+					sendSubject=ConvertToUtf8(sendSubject);
 				}
 				break;
 			case exceptionNotice:
 				if (notice.judgeExceptionNotice()) {
-					content = exceptionContext;
-					sendSubject += " - 流程发生异常";
+					content = ConvertToUtf8(exceptionContext);
+					sendSubject += " - 流程发生异常:";
+					logger.info("email:", sendSubject, content);
+
 				}
 				break;
 			}
@@ -98,6 +103,7 @@ public class FlowNoticeService extends ServiceImpl<FlowNoticeMapper, FlowNotice>
 			// 放入当前时间
 			variables.put("currentDate", this.getCurrentDate());
 			content = ExpressionUtils.execute(content.replaceAll("[{]", "\\${"), variables) + "";
+			content=content+"\r\n异常详情:\r\n"+spiderFlow.getMsg();// 追加异常信息
 			// 整理收件人
 			String recipients = notice.getRecipients();
 			for (String recipient : recipients.split(",")) {
@@ -122,6 +128,12 @@ public class FlowNoticeService extends ServiceImpl<FlowNoticeMapper, FlowNotice>
 				}
 			}
 		}
+	}
+
+	private String ConvertToUtf8(Object args) {
+		String inputArgs = args.toString();
+		return new String(inputArgs.getBytes(StandardCharsets.ISO_8859_1),
+				StandardCharsets.UTF_8);
 	}
 
 	private String getCurrentDate() {

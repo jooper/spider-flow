@@ -8,10 +8,13 @@ import org.slf4j.LoggerFactory;
 import org.spiderflow.context.SpiderContext;
 import org.spiderflow.context.SpiderContextHolder;
 import org.spiderflow.core.Spider;
+import org.spiderflow.core.mapper.SpiderFlowMapper;
 import org.spiderflow.core.model.SpiderFlow;
 import org.spiderflow.core.model.Task;
+import org.spiderflow.core.service.FlowNoticeService;
 import org.spiderflow.core.service.SpiderFlowService;
 import org.spiderflow.core.service.TaskService;
+import org.spiderflow.enums.FlowNoticeType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -37,6 +40,9 @@ public class SpiderJob extends QuartzJobBean {
 
 	@Autowired
 	private TaskService taskService;
+
+	@Autowired
+	private FlowNoticeService flowNoticeService;
 
 	private static Map<Integer, SpiderContext> contextMap = new HashMap<>();
 
@@ -84,6 +90,9 @@ public class SpiderJob extends QuartzJobBean {
 			logger.info("执行任务{}完毕，下次执行时间：{}", spiderFlow.getName(), nextExecuteTime == null ? null : DateFormatUtils.format(nextExecuteTime, "yyyy-MM-dd HH:mm:ss"));
 		} catch (Exception e) {
 			logger.error("执行任务{}出错", spiderFlow.getName(), e);
+			// 流程开始通知
+			spiderFlow.setMsg(e.getMessage());
+			flowNoticeService.sendFlowNotice(spiderFlow, FlowNoticeType.startNotice);
 		} finally {
 			if (context != null) {
 				context.close();
